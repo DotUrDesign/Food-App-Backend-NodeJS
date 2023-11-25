@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
-const DB_LINK = require('../secrets.js');
+const {DB_LINK} = require('../secrets.js');
+const crypto = require('crypto');
 
 mongoose.connect(DB_LINK)
 .then(function(db){
@@ -9,10 +10,11 @@ mongoose.connect(DB_LINK)
     console.log(err);
 });
 
+
 const userSchema = mongoose.Schema({
-    name: {
-        type : String,
-        required: true,
+    name:{
+        type: String,
+        required: true
     },
     email: {
         type: String,
@@ -22,21 +24,43 @@ const userSchema = mongoose.Schema({
     password: {
         type: String,
         required: true,
-        minLength: 8
     },
     confirmPassword: {
         type: String,
         required: true,
-        minLength: 8,
         validate: function(){
-            return this.confirmPassword === this.password;
+            this.password === this.confirmPassword
         }
+    },
+    role: {
+        type: String,
+        required: true
+    },
+    resetToken: {
+        type: String
     }
 });
 
+// not to save the password
 userSchema.pre('save', function(){
     this.confirmPassword = undefined;
-})
+});
 
-const userModel = mongoose.model("userModel", userSchema);
+// userSchema method - createResetToken
+userSchema.methods.createResetToken = function(){
+    // token -> random 32 bits in hexadecimal form -> crypto npm package
+    let resetToken = crypto.randomBytes(32).toString("hex");
+    this.resetToken = resetToken;
+    return resetToken;
+}
+
+// userSchema method - resetPassword
+userSchema.methods.resetPasswordHandler = function(password, confirmPassword){
+    this.password = password;
+    this.confirmPassword = confirmPassword;
+    this.resetToken = undefined;
+}
+
+
+const userModel = mongoose.model('userModel', userSchema);
 module.exports = userModel;
