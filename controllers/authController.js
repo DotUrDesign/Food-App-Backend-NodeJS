@@ -33,6 +33,23 @@ module.exports.login = async function login(req, res){
                 if(user[0].password === password)
                 {
                     // forming a cookie referring that user has been logged in
+                    /*
+                        Cookies are small pieces of data that the server sends to the user's 
+                        web browser. The browser stores these cookies and sends it to the
+                        server for every subsequent request.
+
+                        Used for 
+                        - Session management => When you log into a website, the server sends a 
+                        cookie within which sessionId is stored. Now, if the user navigates to 
+                        different pages of the same website, the user don't have to login again 
+                        for every new page. This ID helps the server remember who you are as you
+                        navigate through different pages.
+
+                        - Personalization => Cookies also stores user preferences like language settings, 
+                        or theme choices. When you return to a website, the server can use these cookies
+                        to present the site according to your preferences. 
+
+                    */
                     let id = user['id'];
                     let token = await jwt.sign({payload: id}, JWT_KEY);
                     res.cookie("isLoggedIn", token);
@@ -180,7 +197,7 @@ module.exports.resetPassword = async function resetPassword(req, res){
 }
 
 module.exports.logout = async function logout(req, res){
-    res.cookie('isLoggedIn', ' ', {maxAge: 1});
+    res.cookie('isLoggedIn', ' ', {maxAge: 1});   // cookie expires in 1 millisec.
     res.json({
         message: "User has been successfully logged out."
     })

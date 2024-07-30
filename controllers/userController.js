@@ -33,7 +33,7 @@ module.exports.deleteUser = async function deleteUser(req,res){
     try {
         let id = req.params.id;
         let deletedUser = await userModel.findByIdAndDelete(id);
-        if(deleteUser)
+        if(deletedUser)
         {
             res.json({
                 message: "User has been deleted",
